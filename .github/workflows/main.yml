@@ -1,0 +1,26 @@
+name: hvac-laravel deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: airvent-laravel prod deploy
+        if: github.ref == 'refs/heads/main'
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/production/public_html/hvac-warehouse/
+            git pull
+            sudo npm run build
+            php artisan optimize:clear
+            php artisan cache:clear
